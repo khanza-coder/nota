@@ -3,69 +3,111 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Input Nota</title>
+<title>Nota</title>
 
 <style>
-body{
-  font-family:Arial;
-  max-width:400px;
-  margin:auto;
-  padding:20px;
-}
+body{font-family:Arial;max-width:500px;margin:auto;padding:15px;background:#f5f5f5}
 
-input,select,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  font-size:16px;
-}
+.card{background:#fff;padding:15px;margin-bottom:10px;border-radius:10px}
 
-button{
-  background:#198754;
-  color:white;
-  border:none;
-}
+input,select,button{width:100%;padding:12px;margin-top:10px}
+
+button{background:#198754;color:white;border:none}
+
+.box{background:white;padding:10px;margin-top:10px;border-radius:8px}
 </style>
 </head>
 
 <body>
 
-<h3>Input Nota</h3>
+<div class="card">
+<h3>Total Belanja</h3>
+<div id="b">0</div>
+</div>
+
+<div class="card">
+<h3>Total Setor</h3>
+<div id="s">0</div>
+</div>
+
+<div class="card">
+<h3>Sisa Nota</h3>
+<div id="ss">0</div>
+</div>
+
+<div class="card">
+
+<input id="nama" placeholder="Nama Toko">
 
 <select id="jenis">
-  <option value="Belanja">Belanja</option>
-  <option value="TF">TF</option>
-  <option value="Cash">Cash</option>
+<option>Belanja</option>
+<option>Setor</option>
 </select>
 
-<input type="number" id="nominal" placeholder="Nominal">
+<input id="nominal" type="number" placeholder="Nominal">
 
 <button onclick="kirim()">Simpan</button>
+
+</div>
+
+<div id="list"></div>
 
 <script>
 
 const URL = "https://script.google.com/macros/s/AKfycbz2vds4yOHdgds4HNMwanywWsnnMCQ7lVjugfk2VweNcZHj57dC9EEx9cyI8NZaeI7ncw/exec";
 
+function rp(x){
+  return "Rp " + Number(x).toLocaleString("id-ID");
+}
+
 function kirim(){
 
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = URL;
+  const form = new FormData();
+  form.append("nama", document.getElementById("nama").value);
+  form.append("jenis", document.getElementById("jenis").value);
+  form.append("nominal", document.getElementById("nominal").value);
 
-  const j = document.createElement("input");
-  j.name = "jenis";
-  j.value = document.getElementById("jenis").value;
-
-  const n = document.createElement("input");
-  n.name = "nominal";
-  n.value = document.getElementById("nominal").value;
-
-  form.appendChild(j);
-  form.appendChild(n);
-
-  document.body.appendChild(form);
-  form.submit();
+  fetch(URL,{
+    method:"POST",
+    body:form
+  }).then(()=>load());
 }
+
+function load(){
+
+  const form = new FormData();
+  form.append("dummy","1");
+
+  fetch(URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r=>r.json())
+  .then(d=>{
+
+    document.getElementById("b").innerText = rp(d.totalBelanja);
+    document.getElementById("s").innerText = rp(d.totalSetor);
+    document.getElementById("ss").innerText = rp(d.sisa);
+
+    let html = "";
+
+    for(let t in d.perToko){
+
+      html += `
+      <div class="box">
+        <b>${t}</b><br>
+        Belanja: ${rp(d.perToko[t].belanja)}<br>
+        Setor: ${rp(d.perToko[t].setor)}<br>
+        Sisa: ${rp(d.perToko[t].belanja - d.perToko[t].setor)}
+      </div>
+      `;
+    }
+
+    document.getElementById("list").innerHTML = html;
+  });
+}
+
+load();
 
 </script>
 
