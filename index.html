@@ -77,50 +77,25 @@ const URL = "https://script.google.com/macros/s/AKfycbz2vds4yOHdgds4HNMwanywWsnn
 
 function simpan(){
 
-  const formData = new FormData();
-  formData.append("jenis", document.getElementById("jenis").value);
-  formData.append("nominal", document.getElementById("nominal").value);
-  formData.append("action", "nota");
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = URL;
 
-  fetch(URL, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.text())
-  .then(res => {
-    alert("Tersimpan");
-    load();
-  })
-  .catch(err => {
-    alert("Error koneksi");
-    console.log(err);
-  });
+  const data = {
+    action: "nota",
+    jenis: document.getElementById("jenis").value,
+    nominal: document.getElementById("nominal").value
+  };
+
+  const input = document.createElement("input");
+  input.name = "data";
+  input.value = JSON.stringify(data);
+
+  form.appendChild(input);
+  document.body.appendChild(form);
+
+  form.submit();
 }
-
-function load(){
-
-  const formData = new FormData();
-  formData.append("action", "getNota");
-
-  fetch(URL, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-
-    document.getElementById("belanja").innerText =
-      "Rp " + data.totalBelanja.toLocaleString("id-ID");
-
-    document.getElementById("setor").innerText =
-      "Rp " + data.totalSetor.toLocaleString("id-ID");
-
-    document.getElementById("sisa").innerText =
-      "Rp " + data.sisaNota.toLocaleString("id-ID");
-  });
-}
-
-load();
 </script>
 
 </body>
