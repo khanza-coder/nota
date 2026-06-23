@@ -75,7 +75,7 @@ button{
 </div>
 
 <script>
-const URL = "PASTE_WEBAPP_URL";
+const URL = "https://script.google.com/macros/s/AKfycbz2vds4yOHdgds4HNMwanywWsnnMCQ7lVjugfk2VweNcZHj57dC9EEx9cyI8NZaeI7ncw/exec";
 
 function rupiah(x){
   return "Rp " + Number(x).toLocaleString("id-ID");
