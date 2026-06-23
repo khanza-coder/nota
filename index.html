@@ -6,40 +6,38 @@
 
 <title>Nota Berjalan</title>
 
-<link rel="manifest" href="manifest.json">
-
 <style>
 body{
-    font-family:Arial;
-    max-width:500px;
-    margin:auto;
-    padding:15px;
-    background:#f5f5f5;
+  font-family:Arial;
+  max-width:500px;
+  margin:auto;
+  padding:15px;
+  background:#f5f5f5;
 }
 
 .card{
-    background:#fff;
-    padding:15px;
-    margin-bottom:10px;
-    border-radius:10px;
-    box-shadow:0 1px 5px rgba(0,0,0,.1);
+  background:#fff;
+  padding:15px;
+  margin-bottom:10px;
+  border-radius:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,.1);
 }
 
 .nominal{
-    font-size:22px;
-    font-weight:bold;
+  font-size:22px;
+  font-weight:bold;
 }
 
 select,input,button{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
+  width:100%;
+  padding:12px;
+  margin-top:10px;
 }
 
 button{
-    background:#198754;
-    color:#fff;
-    border:none;
+  background:#198754;
+  color:#fff;
+  border:none;
 }
 </style>
 </head>
@@ -77,45 +75,52 @@ button{
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbz2vds4yOHdgds4HNMwanywWsnnMCQ7lVjugfk2VweNcZHj57dC9EEx9cyI8NZaeI7ncw/exec";
 
-function rupiah(x){
-  return "Rp " + Number(x).toLocaleString("id-ID");
+function simpan(){
+
+  const formData = new FormData();
+  formData.append("jenis", document.getElementById("jenis").value);
+  formData.append("nominal", document.getElementById("nominal").value);
+  formData.append("action", "nota");
+
+  fetch(URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(res => {
+    alert("Tersimpan");
+    load();
+  })
+  .catch(err => {
+    alert("Error koneksi");
+    console.log(err);
+  });
 }
 
-async function load(){
-  const res = await fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({action:"getNota"})
+function load(){
+
+  const formData = new FormData();
+  formData.append("action", "getNota");
+
+  fetch(URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    document.getElementById("belanja").innerText =
+      "Rp " + data.totalBelanja.toLocaleString("id-ID");
+
+    document.getElementById("setor").innerText =
+      "Rp " + data.totalSetor.toLocaleString("id-ID");
+
+    document.getElementById("sisa").innerText =
+      "Rp " + data.sisaNota.toLocaleString("id-ID");
   });
-
-  const data = await res.json();
-
-  document.getElementById("belanja").innerText = rupiah(data.totalBelanja);
-  document.getElementById("setor").innerText = rupiah(data.totalSetor);
-  document.getElementById("sisa").innerText = rupiah(data.sisaNota);
-}
-
-async function simpan(){
-
-  await fetch(URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"nota",
-      jenis:document.getElementById("jenis").value,
-      nominal:document.getElementById("nominal").value
-    })
-  });
-
-  document.getElementById("nominal").value="";
-  load();
 }
 
 load();
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
-}
 </script>
 
 </body>
